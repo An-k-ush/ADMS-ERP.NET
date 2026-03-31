@@ -1,0 +1,63 @@
+@model IEnumerable<ADMS.ERP.Models.Item>
+@{
+    ViewData["Title"] = "Processed Items";
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0">📋 Processed Items</h2>
+    <a asp-action="Create" class="btn btn-primary">⚙️ Process New Item</a>
+</div>
+
+@if (!Model.Any())
+{
+    <div class="text-center py-5">
+        <p class="text-muted fs-5">No items have been processed yet.</p>
+        <a asp-action="Create" class="btn btn-primary">Process your first item</a>
+    </div>
+}
+else
+{
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+        @foreach (var item in Model)
+        {
+            <div class="col">
+                <div class="card h-100 border-0 shadow-sm">
+                    <div class="card-header d-flex justify-content-between align-items-center bg-success text-white">
+                        <span class="fw-semibold">@item.Name</span>
+                        <span class="badge bg-light text-success">@item.ChildItems.Count child(ren)</span>
+                    </div>
+                    <div class="card-body">
+                        <p class="mb-1">
+                            <span class="text-muted">Weight:</span>
+                            <strong>@item.Weight.ToString("F4") kg</strong>
+                        </p>
+                        @if (!string.IsNullOrEmpty(item.Description))
+                        {
+                            <p class="mb-1 text-muted small">@item.Description</p>
+                        }
+                        @if (item.ChildItems.Any())
+                        {
+                            <hr class="my-2" />
+                            <p class="mb-1 fw-semibold small">Output Items:</p>
+                            <ul class="list-unstyled small mb-0">
+                                @foreach (var child in item.ChildItems.OrderBy(c => c.Name))
+                                {
+                                    <li class="d-flex justify-content-between">
+                                        <span>📌 @child.Name</span>
+                                        <span class="text-muted">@child.Weight.ToString("F4") kg</span>
+                                    </li>
+                                }
+                            </ul>
+                        }
+                    </div>
+                    <div class="card-footer bg-transparent d-flex gap-2">
+                        <a asp-controller="Item" asp-action="Details" asp-route-id="@item.Id"
+                           class="btn btn-outline-info btn-sm">👁 Details</a>
+                        <a asp-action="ItemTree" asp-route-id="@item.Id"
+                           class="btn btn-outline-success btn-sm">🌲 Tree</a>
+                    </div>
+                </div>
+            </div>
+        }
+    </div>
+}

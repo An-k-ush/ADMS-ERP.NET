@@ -1,0 +1,51 @@
+@model ADMS.ERP.Models.TreeNodeViewModel
+
+<ul>
+    <li>
+        <div class="d-inline-flex align-items-center gap-2 py-1">
+            @if (Model.Children.Any())
+            {
+                <button type="button" class="btn btn-link btn-sm p-0 text-decoration-none"
+                        onclick="toggleTree(@Model.Id)" title="Toggle">
+                    ▶
+                </button>
+            }
+            else
+            {
+                <span class="me-2 opacity-0">▶</span>
+            }
+
+            @if (Model.IsProcessed)
+            {
+                <span class="badge bg-success">Processed</span>
+            }
+            else
+            {
+                <span class="badge bg-secondary">Unprocessed</span>
+            }
+
+            <a asp-controller="Item" asp-action="Details" asp-route-id="@Model.Id"
+               class="fw-semibold text-decoration-none">
+                @Model.Name
+            </a>
+            <span class="text-muted small">@Model.Weight.ToString("F4") kg</span>
+
+            @if (!Model.IsProcessed)
+            {
+                <a asp-controller="Process" asp-action="Create" class="btn btn-outline-primary btn-sm py-0 px-1 small">
+                    ⚙️ Process
+                </a>
+            }
+        </div>
+
+        @if (Model.Children.Any())
+        {
+            <div id="subtree-@Model.Id">
+                @foreach (var child in Model.Children)
+                {
+                    @await Html.PartialAsync("_TreeNode", child)
+                }
+            </div>
+        }
+    </li>
+</ul>

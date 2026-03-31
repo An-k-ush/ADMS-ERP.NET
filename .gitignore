@@ -1,0 +1,61 @@
+## .NET Core gitignore
+*.swp
+*.*~
+project.lock.json
+.DS_Store
+*.pyc
+
+# Visual Studio / Rider
+.vs/
+.idea/
+*.user
+*.suo
+*.userosscache
+*.sln.docstates
+
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Ww][Ii][Nn]32/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# NuGet
+.nuget/
+*.nupkg
+**/[Pp]ackages/
+!**/[Pp]ackages/build/
+*.snupkg
+
+# Publish
+**/publish/
+**/PublishProfiles/
+
+# SQLite DB files
+*.db
+*.db-shm
+*.db-wal
+
+# ASP.NET Scaffolding
+ScaffoldingReadMe.txt
+
+# Windows image file caches
+Thumbs.db
+ehthumbs.db
+
+# Coverage
+coverage/
+*.coverage
+*.coveragexml
+
+# Test results
+TestResults/

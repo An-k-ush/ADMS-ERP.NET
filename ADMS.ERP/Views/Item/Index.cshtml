@@ -1,0 +1,125 @@
+@model IEnumerable<ADMS.ERP.Models.Item>
+@{
+    ViewData["Title"] = "Items";
+    var search = ViewData["CurrentSearch"] as string;
+}
+
+<div class="d-flex justify-content-between align-items-center mb-4">
+    <h2 class="mb-0">📦 Items</h2>
+    <a asp-action="Create" class="btn btn-primary">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-plus-circle me-1" viewBox="0 0 16 16">
+            <path d="M8 15A7 7 0 1 1 8 1a7 7 0 0 1 0 14zm0 1A8 8 0 1 0 8 0a8 8 0 0 0 0 16z"/>
+            <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
+        </svg>
+        Add Item
+    </a>
+</div>
+
+<!-- Search Form -->
+<div class="card mb-4 border-0 shadow-sm">
+    <div class="card-body">
+        <form asp-action="Index" method="get" class="row g-2 align-items-end">
+            <div class="col-sm-8 col-md-6">
+                <label class="form-label fw-semibold">Search Items</label>
+                <input type="text" name="search" value="@search" class="form-control"
+                       placeholder="Search by name or description..." />
+            </div>
+            <div class="col-auto">
+                <button type="submit" class="btn btn-outline-primary">🔍 Search</button>
+            </div>
+            @if (!string.IsNullOrWhiteSpace(search))
+            {
+                <div class="col-auto">
+                    <a asp-action="Index" class="btn btn-outline-secondary">✕ Clear</a>
+                </div>
+            }
+        </form>
+    </div>
+</div>
+
+@if (!string.IsNullOrWhiteSpace(search))
+{
+    <div class="alert alert-info">
+        Showing results for: <strong>@search</strong>
+        (@Model.Count() item@(Model.Count() != 1 ? "s" : "") found)
+    </div>
+}
+
+@if (!Model.Any())
+{
+    <div class="text-center py-5">
+        <p class="text-muted fs-5">No items found.</p>
+        <a asp-action="Create" class="btn btn-primary">Add your first item</a>
+    </div>
+}
+else
+{
+    <div class="card border-0 shadow-sm">
+        <div class="card-body p-0">
+            <div class="table-responsive">
+                <table class="table table-hover mb-0" id="itemsTable">
+                    <thead class="table-light">
+                        <tr>
+                            <th>#</th>
+                            <th>Name</th>
+                            <th>Weight (kg)</th>
+                            <th>Description</th>
+                            <th>Parent Item</th>
+                            <th>Status</th>
+                            <th>Created</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            <tr>
+                                <td class="text-muted">@item.Id</td>
+                                <td class="fw-semibold">@item.Name</td>
+                                <td>@item.Weight.ToString("F4")</td>
+                                <td class="text-muted">@(item.Description ?? "—")</td>
+                                <td>
+                                    @if (item.ParentItem != null)
+                                    {
+                                        <a asp-action="Details" asp-route-id="@item.ParentItem.Id"
+                                           class="badge bg-secondary text-decoration-none">
+                                            @item.ParentItem.Name
+                                        </a>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted">—</span>
+                                    }
+                                </td>
+                                <td>
+                                    @if (item.IsProcessed)
+                                    {
+                                        <span class="badge bg-success">Processed</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="badge bg-secondary">Unprocessed</span>
+                                    }
+                                </td>
+                                <td class="text-muted small">@item.CreatedAt.ToString("dd MMM yyyy")</td>
+                                <td>
+                                    <div class="btn-group btn-group-sm">
+                                        <a asp-action="Details" asp-route-id="@item.Id"
+                                           class="btn btn-outline-info" title="View Details">👁</a>
+                                        <a asp-action="Edit" asp-route-id="@item.Id"
+                                           class="btn btn-outline-warning" title="Edit">✏️</a>
+                                        <a asp-action="Delete" asp-route-id="@item.Id"
+                                           class="btn btn-outline-danger" title="Delete">🗑</a>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        <div class="card-footer text-muted small">
+            Total: @Model.Count() item@(Model.Count() != 1 ? "s" : "")
+        </div>
+    </div>
+}

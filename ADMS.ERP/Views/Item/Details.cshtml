@@ -1,0 +1,103 @@
+@model ADMS.ERP.Models.Item
+@{
+    ViewData["Title"] = "Item Details";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-8">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-info text-white d-flex justify-content-between align-items-center">
+                <h4 class="mb-0">👁 Item Details</h4>
+                <div class="btn-group btn-group-sm">
+                    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-light btn-sm">✏️ Edit</a>
+                    <a asp-action="Delete" asp-route-id="@Model.Id" class="btn btn-danger btn-sm">🗑 Delete</a>
+                </div>
+            </div>
+            <div class="card-body">
+                <dl class="row">
+                    <dt class="col-sm-3">ID</dt>
+                    <dd class="col-sm-9 text-muted">#@Model.Id</dd>
+
+                    <dt class="col-sm-3">Name</dt>
+                    <dd class="col-sm-9 fw-semibold">@Model.Name</dd>
+
+                    <dt class="col-sm-3">Weight</dt>
+                    <dd class="col-sm-9">@Model.Weight.ToString("F4") kg</dd>
+
+                    <dt class="col-sm-3">Description</dt>
+                    <dd class="col-sm-9 text-muted">@(Model.Description ?? "—")</dd>
+
+                    <dt class="col-sm-3">Status</dt>
+                    <dd class="col-sm-9">
+                        @if (Model.IsProcessed)
+                        {
+                            <span class="badge bg-success">Processed</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">Unprocessed</span>
+                        }
+                    </dd>
+
+                    <dt class="col-sm-3">Parent Item</dt>
+                    <dd class="col-sm-9">
+                        @if (Model.ParentItem != null)
+                        {
+                            <a asp-action="Details" asp-route-id="@Model.ParentItem.Id">
+                                @Model.ParentItem.Name (@Model.ParentItem.Weight.ToString("F4") kg)
+                            </a>
+                        }
+                        else
+                        {
+                            <span class="text-muted">— (Root Item)</span>
+                        }
+                    </dd>
+
+                    <dt class="col-sm-3">Created</dt>
+                    <dd class="col-sm-9 text-muted">@Model.CreatedAt.ToString("dd MMM yyyy HH:mm")</dd>
+
+                    @if (Model.UpdatedAt.HasValue)
+                    {
+                        <dt class="col-sm-3">Last Updated</dt>
+                        <dd class="col-sm-9 text-muted">@Model.UpdatedAt.Value.ToString("dd MMM yyyy HH:mm")</dd>
+                    }
+                </dl>
+
+                @if (Model.ChildItems.Any())
+                {
+                    <hr />
+                    <h5>Child Items (@Model.ChildItems.Count)</h5>
+                    <ul class="list-group list-group-flush">
+                        @foreach (var child in Model.ChildItems.OrderBy(c => c.Name))
+                        {
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <div>
+                                    <a asp-action="Details" asp-route-id="@child.Id" class="fw-semibold text-decoration-none">
+                                        @child.Name
+                                    </a>
+                                    <small class="text-muted ms-2">@child.Weight.ToString("F4") kg</small>
+                                </div>
+                                @if (child.IsProcessed)
+                                {
+                                    <span class="badge bg-success">Processed</span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-secondary">Unprocessed</span>
+                                }
+                            </li>
+                        }
+                    </ul>
+                }
+            </div>
+            <div class="card-footer d-flex gap-2">
+                <a asp-action="Index" class="btn btn-outline-secondary btn-sm">← Back to List</a>
+                @if (!Model.IsProcessed)
+                {
+                    <a asp-controller="Process" asp-action="Create" class="btn btn-primary btn-sm">⚙️ Process This Item</a>
+                }
+                <a asp-controller="Process" asp-action="ItemTree" asp-route-id="@Model.Id" class="btn btn-outline-info btn-sm">🌲 View Tree</a>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,81 @@
+@model ADMS.ERP.Models.LoginViewModel
+@{
+    ViewData["Title"] = "Login";
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login - ADMS ERP</title>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.min.css" />
+    <style>
+        body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); min-height: 100vh; display: flex; align-items: center; }
+        .login-card { border: none; border-radius: 1rem; box-shadow: 0 1rem 3rem rgba(0,0,0,.175); }
+        .login-header { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border-radius: 1rem 1rem 0 0; padding: 2rem; text-align: center; color: white; }
+        .btn-login { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); border: none; width: 100%; padding: 0.75rem; border-radius: 0.5rem; color: white; font-size: 1rem; }
+        .btn-login:hover { opacity: 0.9; color: white; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-5 col-lg-4">
+                <div class="card login-card">
+                    <div class="login-header">
+                        <h2 class="mb-0">🏭 ADMS ERP</h2>
+                        <p class="mb-0 mt-1 opacity-75">Item Processing System</p>
+                    </div>
+                    <div class="card-body p-4">
+                        <h5 class="card-title mb-4">Sign In</h5>
+
+                        <form asp-action="Login" method="post">
+                            <input type="hidden" name="ReturnUrl" value="@ViewData["ReturnUrl"]" />
+                            <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                            <div class="mb-3">
+                                <label asp-for="Email" class="form-label fw-semibold"></label>
+                                <input asp-for="Email" class="form-control" placeholder="Enter your email" autocomplete="email" />
+                                <span asp-validation-for="Email" class="text-danger small"></span>
+                            </div>
+
+                            <div class="mb-3">
+                                <label asp-for="Password" class="form-label fw-semibold"></label>
+                                <input asp-for="Password" class="form-control" placeholder="Enter your password" autocomplete="current-password" />
+                                <span asp-validation-for="Password" class="text-danger small"></span>
+                            </div>
+
+                            <div class="mb-3 form-check">
+                                <input asp-for="RememberMe" class="form-check-input" />
+                                <label asp-for="RememberMe" class="form-check-label">Remember me</label>
+                            </div>
+
+                            <button type="submit" class="btn btn-login mb-3">Sign In</button>
+
+                            <p class="text-center mb-0 text-muted small">
+                                Don't have an account?
+                                <a asp-action="Register">Register here</a>
+                            </p>
+                        </form>
+
+                        <hr class="my-3" />
+                        <div class="text-center">
+                            <small class="text-muted">
+                                <strong>Demo credentials:</strong><br />
+                                Email: admin@adms.com<br />
+                                Password: Admin@123
+                            </small>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+    <script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,195 @@
+@model ADMS.ERP.Models.ProcessItemViewModel
+@{
+    ViewData["Title"] = "Process Item";
+}
+
+<div class="row justify-content-center">
+    <div class="col-md-9">
+        <div class="card border-0 shadow-sm">
+            <div class="card-header bg-primary text-white">
+                <h4 class="mb-0">⚙️ Process Item</h4>
+                <small class="opacity-75">Select a parent item and define its output child items</small>
+            </div>
+            <div class="card-body">
+                @if (Model.AvailableItems == null || !Model.AvailableItems.Any())
+                {
+                    <div class="alert alert-warning">
+                        <strong>No unprocessed items available.</strong>
+                        <a asp-controller="Item" asp-action="Create" class="alert-link">Add items first</a>.
+                    </div>
+                }
+                else
+                {
+                    <form asp-action="Create" method="post" id="processForm">
+                        <div asp-validation-summary="ModelOnly" class="alert alert-danger" role="alert"></div>
+
+                        <!-- Parent Item Selection -->
+                        <div class="card mb-4 border-primary">
+                            <div class="card-header bg-primary bg-opacity-10 fw-semibold">
+                                📦 Parent Item (Input)
+                            </div>
+                            <div class="card-body">
+                                <div class="mb-0">
+                                    <label asp-for="ParentItemId" class="form-label fw-semibold">Select Parent Item</label>
+                                    <select asp-for="ParentItemId" class="form-select" id="parentItemSelect">
+                                        <option value="">— Choose an item to process —</option>
+                                        @foreach (var item in Model.AvailableItems)
+                                        {
+                                            <option value="@item.Id">
+                                                @item.Name (@item.Weight.ToString("F4") kg)
+                                                @if (!string.IsNullOrEmpty(item.Description))
+                                                {
+                                                    @(" - " + item.Description)
+                                                }
+                                            </option>
+                                        }
+                                    </select>
+                                    <span asp-validation-for="ParentItemId" class="text-danger small"></span>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Child Items Section -->
+                        <div class="card mb-4 border-success">
+                            <div class="card-header bg-success bg-opacity-10 d-flex justify-content-between align-items-center">
+                                <span class="fw-semibold">📌 Output Child Items</span>
+                                <button type="button" class="btn btn-success btn-sm" onclick="addChildItem()">
+                                    + Add Child Item
+                                </button>
+                            </div>
+                            <div class="card-body" id="childItemsContainer">
+                                <div id="noChildMsg" class="text-center text-muted py-3" style="display:none">
+                                    Click "+ Add Child Item" to add output items.
+                                </div>
+
+                                @for (int i = 0; i < Model.ChildItems.Count; i++)
+                                {
+                                    <div class="child-item-row border rounded p-3 mb-3" id="child-@i">
+                                        <div class="d-flex justify-content-between align-items-center mb-2">
+                                            <h6 class="mb-0 text-success">Child Item #<span class="child-num">@(i + 1)</span></h6>
+                                            <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeChild(this)">Remove</button>
+                                        </div>
+                                        <div class="row g-3">
+                                            <div class="col-md-5">
+                                                <label class="form-label fw-semibold">Item Name *</label>
+                                                <input type="text" name="ChildItems[@i].Name" class="form-control"
+                                                       placeholder="Child item name" value="@Model.ChildItems[i].Name" />
+                                            </div>
+                                            <div class="col-md-3">
+                                                <label class="form-label fw-semibold">Weight (kg) *</label>
+                                                <input type="number" name="ChildItems[@i].Weight" class="form-control"
+                                                       placeholder="0.0000" step="0.0001" min="0.0001"
+                                                       value="@(Model.ChildItems[i].Weight > 0 ? Model.ChildItems[i].Weight.ToString() : "")" />
+                                            </div>
+                                            <div class="col-md-4">
+                                                <label class="form-label fw-semibold">Description</label>
+                                                <input type="text" name="ChildItems[@i].Description" class="form-control"
+                                                       placeholder="Optional" value="@Model.ChildItems[i].Description" />
+                                            </div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        </div>
+
+                        <div id="validationMsg" class="alert alert-danger d-none">
+                            Please add at least one child item with a name and valid weight.
+                        </div>
+
+                        <div class="d-flex gap-2">
+                            <button type="submit" class="btn btn-primary" onclick="return validateForm()">
+                                ✅ Process Item
+                            </button>
+                            <a asp-action="Index" class="btn btn-outline-secondary">Cancel</a>
+                        </div>
+                    </form>
+                }
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        var childCount = @Model.ChildItems.Count;
+
+        function addChildItem() {
+            var container = document.getElementById('childItemsContainer');
+            var noMsg = document.getElementById('noChildMsg');
+            if (noMsg) noMsg.style.display = 'none';
+
+            var div = document.createElement('div');
+            div.className = 'child-item-row border rounded p-3 mb-3';
+            div.id = 'child-' + childCount;
+            div.innerHTML = `
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h6 class="mb-0 text-success">Child Item #<span class="child-num">${childCount + 1}</span></h6>
+                    <button type="button" class="btn btn-outline-danger btn-sm" onclick="removeChild(this)">Remove</button>
+                </div>
+                <div class="row g-3">
+                    <div class="col-md-5">
+                        <label class="form-label fw-semibold">Item Name *</label>
+                        <input type="text" name="ChildItems[${childCount}].Name" class="form-control" placeholder="Child item name" />
+                    </div>
+                    <div class="col-md-3">
+                        <label class="form-label fw-semibold">Weight (kg) *</label>
+                        <input type="number" name="ChildItems[${childCount}].Weight" class="form-control"
+                               placeholder="0.0000" step="0.0001" min="0.0001" />
+                    </div>
+                    <div class="col-md-4">
+                        <label class="form-label fw-semibold">Description</label>
+                        <input type="text" name="ChildItems[${childCount}].Description" class="form-control" placeholder="Optional" />
+                    </div>
+                </div>`;
+            container.appendChild(div);
+            childCount++;
+            renumberChildren();
+        }
+
+        function removeChild(btn) {
+            var row = btn.closest('.child-item-row');
+            row.remove();
+            renumberChildren();
+        }
+
+        function renumberChildren() {
+            var rows = document.querySelectorAll('.child-item-row');
+            rows.forEach(function(row, idx) {
+                var numSpan = row.querySelector('.child-num');
+                if (numSpan) numSpan.textContent = idx + 1;
+                // Re-index form fields
+                row.querySelectorAll('input').forEach(function(inp) {
+                    inp.name = inp.name.replace(/ChildItems\[\d+\]/, 'ChildItems[' + idx + ']');
+                });
+            });
+        }
+
+        function validateForm() {
+            var rows = document.querySelectorAll('.child-item-row');
+            var valid = false;
+            rows.forEach(function(row) {
+                var nameInput = row.querySelector('input[name*=".Name"]');
+                var weightInput = row.querySelector('input[name*=".Weight"]');
+                if (nameInput && nameInput.value.trim() !== '' &&
+                    weightInput && parseFloat(weightInput.value) > 0) {
+                    valid = true;
+                }
+            });
+            if (!valid) {
+                document.getElementById('validationMsg').classList.remove('d-none');
+                return false;
+            }
+            document.getElementById('validationMsg').classList.add('d-none');
+            return true;
+        }
+
+        // Add first child row if none exist on load
+        document.addEventListener('DOMContentLoaded', function() {
+            var rows = document.querySelectorAll('.child-item-row');
+            if (rows.length === 0) {
+                addChildItem();
+            }
+        });
+    </script>
+}
